@@ -83,6 +83,7 @@ DEFINE_EVENT(loadeval, cpufreq_interactive_notyet,
 );
 
 TRACE_EVENT(cpufreq_interactive_boost,
+<<<<<<< HEAD
 	    TP_PROTO(const char *s),
 	    TP_ARGS(s),
 	    TP_STRUCT__entry(
@@ -104,6 +105,29 @@ TRACE_EVENT(cpufreq_interactive_unboost,
 		    __assign_str(s, s);
 	    ),
 	    TP_printk("%s", __get_str(s))
+=======
+	    TP_PROTO(char *s),
+	    TP_ARGS(s),
+	    TP_STRUCT__entry(
+		    __field(char *, s)
+	    ),
+	    TP_fast_assign(
+		    __entry->s = s;
+	    ),
+	    TP_printk("%s", __entry->s)
+);
+
+TRACE_EVENT(cpufreq_interactive_unboost,
+	    TP_PROTO(char *s),
+	    TP_ARGS(s),
+	    TP_STRUCT__entry(
+		    __field(char *, s)
+	    ),
+	    TP_fast_assign(
+		    __entry->s = s;
+	    ),
+	    TP_printk("%s", __entry->s)
+>>>>>>> bd51cad... cpufreq: interactive: add boost pulse interface
 );
 
 #endif /* _TRACE_CPUFREQ_INTERACTIVE_H */
