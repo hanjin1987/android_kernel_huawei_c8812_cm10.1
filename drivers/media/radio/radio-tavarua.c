@@ -3037,6 +3037,9 @@ static int tavarua_vidioc_g_ctrl(struct file *file, void *priv,
 	case V4L2_CID_PRIVATE_VALID_CHANNEL:
 		ctrl->value = radio->is_station_valid;
 		break;
+<<<<<<< HEAD
+>>>>>>> 8cde950... radio-tavarua: update to msm-3.4
+=======
 >>>>>>> 8cde950... radio-tavarua: update to msm-3.4
 	default:
 		retval = -EINVAL;
@@ -3254,8 +3257,11 @@ static int tavarua_vidioc_s_ctrl(struct file *file, void *priv,
 		/* check if off */
 		else if ((ctrl->value == FM_OFF) && radio->registers[RDCTRL]) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 			FMDBG("turning off...\n");
 =======
+=======
+>>>>>>> 8cde950... radio-tavarua: update to msm-3.4
 			radio->spur_table_size = 0;
 			FMDBG("%s: turning off...\n", __func__);
 >>>>>>> 8cde950... radio-tavarua: update to msm-3.4
@@ -3618,6 +3624,9 @@ static int tavarua_vidioc_s_ctrl(struct file *file, void *priv,
 	case V4L2_CID_PRIVATE_SINR_THRESHOLD:
 	case V4L2_CID_PRIVATE_SINR_SAMPLES:
 	case V4L2_CID_PRIVATE_SPUR_SELECTION:
+<<<<<<< HEAD
+>>>>>>> 8cde950... radio-tavarua: update to msm-3.4
+=======
 >>>>>>> 8cde950... radio-tavarua: update to msm-3.4
 		retval = 0;
 		break;

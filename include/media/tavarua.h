@@ -189,6 +189,9 @@ enum v4l2_cid_private_tavarua_t {
 	V4L2_CID_PRIVATE_SPUR_SELECTION,
 	V4L2_CID_PRIVATE_UPDATE_SPUR_TABLE,
 	V4L2_CID_PRIVATE_VALID_CHANNEL,
+<<<<<<< HEAD
+>>>>>>> 8cde950... radio-tavarua: update to msm-3.4
+=======
 >>>>>>> 8cde950... radio-tavarua: update to msm-3.4
 
 };
