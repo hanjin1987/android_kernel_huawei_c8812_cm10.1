@@ -114,6 +114,7 @@ static struct adreno_device device_3d0 = {
 	.pfp_fw = NULL,
 	.pm4_fw = NULL,
 	.wait_timeout = 10000, /* in milliseconds */
+	.ib_check_level = 0,
 };
 
 
@@ -273,6 +274,12 @@ static void adreno_setstate(struct kgsl_device *device,
 	int sizedwords = 0;
 	unsigned int mh_mmu_invalidate = 0x00000003; /*invalidate all and tc */
 
+	/*
+	 * Fix target freeze issue by adding TLB flush for each submit
+	 * on A20X based targets.
+	 */
+	if (adreno_is_a20x(adreno_dev))
+		flags |= KGSL_MMUFLAGS_TLBFLUSH;
 	/*
 	 * If possible, then set the state via the command stream to avoid
 	 * a CPU idle.  Otherwise, use the default setstate which uses register
@@ -544,7 +551,10 @@ static int adreno_start(struct kgsl_device *device, unsigned int init_ram)
 
 	adreno_regwrite(device, REG_RBBM_SOFT_RESET, 0x00000000);
 
-	adreno_regwrite(device, REG_RBBM_CNTL, 0x00004442);
+	if (adreno_is_a200(adreno_dev))
+		adreno_regwrite(device, REG_RBBM_CNTL, 0x0000FFFF);
+	else
+		adreno_regwrite(device, REG_RBBM_CNTL, 0x00004442);
 
 	if (adreno_is_a225(adreno_dev)) {
 		/* Enable large instruction store for A225 */
@@ -638,6 +648,8 @@ adreno_recover_hang(struct kgsl_device *device)
 	unsigned int soptimestamp;
 	unsigned int eoptimestamp;
 	struct adreno_context *drawctxt;
+	struct kgsl_context *context;
+	int next = 0;
 
 	KGSL_DRV_ERR(device, "Starting recovery from 3D GPU hang....\n");
 	rb_buffer = vmalloc(rb->buffer_desc.size);
@@ -868,13 +880,13 @@ int adreno_idle(struct kgsl_device *device, unsigned int timeout)
 	struct adreno_ringbuffer *rb = &adreno_dev->ringbuffer;
 	unsigned int rbbm_status;
 	unsigned long wait_timeout =
-	msecs_to_jiffies(adreno_dev->wait_timeout);
-	/*merge qc patch to fix kgsl issue.*/
+		msecs_to_jiffies(adreno_dev->wait_timeout);
 	unsigned long wait_time;
 	unsigned long wait_time_part;
 	unsigned int msecs;
 	unsigned int msecs_first;
 	unsigned int msecs_part;
+
 	kgsl_cffdump_regpoll(device->id, REG_RBBM_STATUS << 2,
 		0x00000000, 0x80000000);
 	/* first, wait until the CP has consumed all the commands in
@@ -882,7 +894,6 @@ int adreno_idle(struct kgsl_device *device, unsigned int timeout)
 	 */
 retry:
 	if (rb->flags & KGSL_FLAGS_STARTED) {
-		/*merge qc patch to fix kgsl issue.*/
 		msecs = adreno_dev->wait_timeout;
 		msecs_first = (msecs <= 100) ? ((msecs + 4) / 5) : 100;
 		msecs_part = (msecs - msecs_first + 3) / 4;
@@ -961,7 +972,7 @@ static int adreno_suspend_context(struct kgsl_device *device)
 	return status;
 }
 
-const struct kgsl_memdesc *adreno_find_region(struct kgsl_device *device,
+struct kgsl_memdesc *adreno_find_region(struct kgsl_device *device,
 						unsigned int pt_base,
 						unsigned int gpuaddr,
 						unsigned int size)
@@ -988,8 +999,7 @@ const struct kgsl_memdesc *adreno_find_region(struct kgsl_device *device,
 		if (!kgsl_mmu_pt_equal(priv->pagetable, pt_base))
 			continue;
 		spin_lock(&priv->mem_lock);
-		entry = kgsl_sharedmem_find_region(priv, gpuaddr,
-						sizeof(unsigned int));
+		entry = kgsl_sharedmem_find_region(priv, gpuaddr, size);
 		if (entry) {
 			result = &entry->memdesc;
 			spin_unlock(&priv->mem_lock);
@@ -1033,7 +1043,7 @@ const struct kgsl_memdesc *adreno_find_region(struct kgsl_device *device,
 uint8_t *adreno_convertaddr(struct kgsl_device *device, unsigned int pt_base,
 			    unsigned int gpuaddr, unsigned int size)
 {
-	const struct kgsl_memdesc *memdesc;
+	struct kgsl_memdesc *memdesc;
 
 	memdesc = adreno_find_region(device, pt_base, gpuaddr, size);
 

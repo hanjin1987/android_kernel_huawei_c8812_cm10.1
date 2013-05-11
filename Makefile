@@ -192,7 +192,7 @@ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ -e s/sun4u/sparc64/ \
 # Default value for CROSS_COMPILE is not to prefix executables
 # Note: Some architectures assign CROSS_COMPILE in their arch/*/Makefile
 export KBUILD_BUILDHOST := $(SUBARCH)
-ARCH		?= $(SUBARCH)
+ARCH		?= arm
 CROSS_COMPILE	?= $(CONFIG_CROSS_COMPILE:"%"=%)
 # Architecture as present in compile.h
 UTS_MACHINE 	:= $(ARCH)
@@ -353,7 +353,7 @@ CHECKFLAGS     := -D__linux__ -Dlinux -D__STDC__ -Dunix -D__unix__ \
 CFLAGS_MODULE   =
 AFLAGS_MODULE   =
 LDFLAGS_MODULE  =
-CFLAGS_KERNEL	=
+CFLAGS_KERNEL	= -march=armv7-a -mfpu=neon -mcpu=cortex-a5 -mtune=cortex-a5 -ftree-vectorize -ffast-math -fsingle-precision-constant
 AFLAGS_KERNEL	=
 #CFLAGS_MODULE   = $(MODFLAGS) -fgcse -fsched-spec-load-dangerous -fforce-addr -ffast-math -funsafe-math-optimizations -fsingle-precision-constant -mtune=cortex-a5 -march=armv7-a -mfpu=neon -ftree-vectorize -pipe
 #AFLAGS_MODULE   = $(MODFLAGS)

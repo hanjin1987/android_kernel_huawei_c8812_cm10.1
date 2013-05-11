@@ -41,18 +41,18 @@
 #define MIN_FREQUENCY_UP_THRESHOLD		(11)
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
 #define MIN_FREQUENCY_DOWN_DIFFERENTIAL		(1)
-<<<<<<< HEAD
+
 /* merge DTS2012011904179 */
 /* define the sample rate to 30ms for non-idle state */
 #ifdef CONFIG_HUAWEI_KERNEL
 #define MICRO_FREQUENCY_PREFERED_SAMPLE_RATE (30000)
 #endif
-=======
+
 #define DEFAULT_FREQ_BOOST_TIME			(2500000)
 
 u64 freq_boosted_time;
 
->>>>>>> b7f1f7d... cpufreq: ondemand: add boost pulse interface
+
 /*
  * The polling frequency of this governor depends on the capability of
  * the processor. Default polling frequency is 1000 times the transition
